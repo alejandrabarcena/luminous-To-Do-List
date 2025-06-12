@@ -74,7 +74,7 @@
 - Resúmenes diarios de tareas pendientes vía notificaciones.
 
 ---
-
 🚀 **Entregable**  
-Sube este archivo como `mi-plan-implementacion.md` a tu repo y comparte la URL:
+Sube este archivo como `mi-plan-implementacion.md` a tu repositorio y comparte la URL:
 
+https://github.com/alejandrabarcena/luminous-To-Do-List/blob/main/mi-plan-implementacion.md  
