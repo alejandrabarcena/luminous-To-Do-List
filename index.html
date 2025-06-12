@@ -1,50 +1,62 @@
-﻿@'
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>To Do List Mejorada</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css"/>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <main class="todo-container">
     <header>
       <h1>To Do List</h1>
-      <div class="task-stats">
+      <div class="controls">
+        <button id="clear-completed">🗑 Limpiar completadas</button>
         <span id="pending-count">0 pendientes</span>
-        <button id="clear-completed" aria-label="Limpiar completadas">Limpiar completadas</button>
       </div>
     </header>
 
-    <section class="category-selection" aria-labelledby="cat-heading">
-      <h2 id="cat-heading">Selecciona categoría</h2>
+    <section class="category-selection" aria-label="Selecciona categoría">
+      <h2 class="sr-only">Categorías</h2>
       <div class="categories">
-        <!-- Repite este bloque .category para cada categoría -->
-        <div class="category" data-id="1" role="button" tabindex="0">
-          <img src="https://iili.io/dL9hVmF.png" alt="Meeting">
-          <span>Meeting</span>
+        <div class="category" data-id="1" tabindex="0">
+          <img src="https://iili.io/dL9hVmF.png" alt="Meeting"><span>Meeting</span>
         </div>
-        <!-- … -->
+        <div class="category" data-id="2" tabindex="0">
+          <img src="https://iili.io/dL9hMe1.png" alt="Bills"><span>Bills</span>
+        </div>
+        <div class="category" data-id="3" tabindex="0">
+          <img src="https://iili.io/dL9h7Wb.png" alt="Work"><span>Work</span>
+        </div>
+        <div class="category" data-id="4" tabindex="0">
+          <img src="https://iili.io/dL9h5zu.png" alt="School"><span>School</span>
+        </div>
+        <div class="category" data-id="5" tabindex="0">
+          <img src="https://iili.io/dL9hYsj.png" alt="Sport"><span>Sport</span>
+        </div>
+        <div class="category" data-id="6" tabindex="0">
+          <img src="https://iili.io/dL9hG5P.png" alt="Cleaning"><span>Cleaning</span>
+        </div>
+        <div class="category" data-id="7" tabindex="0">
+          <img src="https://iili.io/dL9hl0Q.png" alt="Other"><span>Other</span>
+        </div>
       </div>
     </section>
 
-    <section class="task-input" aria-labelledby="input-heading">
-      <h2 id="input-heading">Nueva tarea</h2>
+    <section class="task-input" aria-label="Añadir tarea">
+      <h2 class="sr-only">Nueva tarea</h2>
       <label for="task-desc">Descripción:</label>
-      <input type="text" id="task-desc" placeholder="Escribe tu tarea…"/>
-
+      <input type="text" id="task-desc" placeholder="Escribe tu tarea…" />
       <label for="task-date">Fecha límite:</label>
-      <input type="date" id="task-date"/>
-
-      <button id="add-task">Añadir</button>
+      <input type="date" id="task-date" />
+      <button id="add-task">➕ Añadir</button>
     </section>
 
-    <section aria-labelledby="list-heading">
-      <h2 id="list-heading">Mis tareas</h2>
+    <section class="tasks" aria-label="Lista de tareas">
+      <h2 class="sr-only">Mis tareas</h2>
       <ul id="todo-list"></ul>
     </section>
   </main>
@@ -52,4 +64,3 @@
   <script src="app.js"></script>
 </body>
 </html>
-'@ | Set-Content -Encoding UTF8 index.html

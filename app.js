@@ -1,83 +1,125 @@
-@'
 const todoList = document.getElementById("todo-list");
 const addBtn = document.getElementById("add-task");
 const clearBtn = document.getElementById("clear-completed");
 const pendingCount = document.getElementById("pending-count");
 let selectedCategory = null;
 
-window.addEventListener("DOMContentLoaded",()=>{
-  document.querySelectorAll(".category").forEach(el=>{
-    el.addEventListener("click",()=>{ 
-      document.querySelectorAll(".category").forEach(c=>c.classList.remove("selected"));
-      el.classList.add("selected");
-      selectedCategory={id:el.dataset.id,imageSrc:el.querySelector("img").src,name:el.querySelector("span").innerText};
-    });
-  });
-  addBtn.addEventListener("click", addTaskHandler);
-  clearBtn.addEventListener("click", clearCompleted);
+// Inicialización
+window.addEventListener("DOMContentLoaded", () => {
   loadTasks();
   updateStats();
 });
 
-function addTaskHandler(){
-  const desc=document.getElementById("task-desc").value.trim();
-  const date=document.getElementById("task-date").value;
-  if(!selectedCategory||!date)return alert("Falta categoría o fecha");
-  addTask(selectedCategory,desc,date,false);
+// Delegación para categorías y botones
+document.body.addEventListener("click", (e) => {
+  if (e.target.closest(".category")) selectCategory(e.target.closest(".category"));
+  if (e.target.id === "add-task") handleAdd();
+  if (e.target.id === "clear-completed") clearCompleted();
+  if (e.target.classList.contains("complete-btn")) toggleComplete(e.target.closest(".todo-item"));
+  if (e.target.classList.contains("delete-btn")) removeTask(e.target.closest(".todo-item"));
+});
+
+// Seleccionar categoría
+function selectCategory(cat) {
+  document.querySelectorAll(".category").forEach(c => c.classList.remove("selected"));
+  cat.classList.add("selected");
+  selectedCategory = {
+    id: cat.dataset.id,
+    imageSrc: cat.querySelector("img").src,
+    name: cat.querySelector("span").innerText
+  };
+}
+
+// Añadir tarea
+function handleAdd() {
+  const desc = document.getElementById("task-desc").value.trim();
+  const date = document.getElementById("task-date").value;
+  if (!selectedCategory || !date) return alert("Selecciona categoría y fecha");
+  addTask(selectedCategory, desc, date, false);
   resetForm();
   saveTasks();
   updateStats();
 }
 
-function addTask(cat,desc,date,done){
-  const li=document.createElement("li");
-  li.className="todo-item";
-  if(done)li.classList.add("completed");
-  li.dataset.categoryId=cat.id;
-  li.innerHTML=`
+// Crear elemento de tarea
+function addTask(cat, desc, date, done) {
+  const li = document.createElement("li");
+  li.className = "todo-item";
+  if (done) li.classList.add("completed");
+  li.innerHTML = `
     <img src="${cat.imageSrc}" alt="${cat.name}">
-    <div><strong>${cat.name}</strong> <span>${desc||"Sin descripción"}</span><br><small>Due: ${date}</small></div>
+    <div class="todo-text">
+      <strong>${cat.name}</strong>
+      <span>${desc || "Sin descripción"}</span>
+      <small>Due: ${date}</small>
+    </div>
     <div class="todo-actions">
-      <button class="complete-btn">${done?"Undo":"Complete"}</button>
-      <button class="delete-btn">Delete</button>
+      <button class="complete-btn">${done ? "↺" : "✔️"}</button>
+      <button class="delete-btn">🗑️</button>
     </div>`;
-  requestAnimationFrame(()=>li.classList.add("visible"));
-  li.querySelector(".complete-btn").onclick=()=>{li.classList.toggle("completed"); saveTasks(); updateStats();};
-  li.querySelector(".delete-btn").onclick=()=>{li.remove(); saveTasks(); updateStats();};
-  todoList.appendChild(li);
+  todoList.append(li);
+  requestAnimationFrame(() => li.classList.add("visible"));
 }
 
-function saveTasks(){
-  const arr=[...document.querySelectorAll(".todo-item")].map(li=>({
-    category:{id:li.dataset.categoryId,imageSrc:li.querySelector("img").src,name:li.querySelector("strong").innerText},
-    taskDesc:li.querySelector("span").innerText,
-    taskDate:li.querySelector("small").innerText.replace("Due: ",""),
-    isCompleted:li.classList.contains("completed")
-  }));
-  localStorage.setItem("todoTasks",JSON.stringify(arr));
+// Marcar completada
+function toggleComplete(li) {
+  li.classList.toggle("completed");
+  saveTasks();
+  updateStats();
 }
 
-function loadTasks(){
-  const arr=JSON.parse(localStorage.getItem("todoTasks"))||[];
-  if(!arr.length)addTask({id:1,imageSrc:"https://iili.io/dL9hYsj.png",name:"Sport"},"Soccer practice",new Date().toISOString().split("T")[0],false);
-  else arr.forEach(t=>addTask(t.category,t.taskDesc,t.taskDate,t.isCompleted));
+// Eliminar
+function removeTask(li) {
+  li.remove();
+  saveTasks();
+  updateStats();
 }
 
-function clearCompleted(){
-  document.querySelectorAll(".todo-item.completed").forEach(el=>el.remove());
-  saveTasks(); updateStats();
+// Guardar y cargar desde LocalStorage
+function saveTasks() {
+  const tasks = [...todoList.children].map(li => {
+    return {
+      category: {
+        id: li.dataset.categoryId,
+        imageSrc: li.querySelector("img").src,
+        name: li.querySelector("strong").innerText
+      },
+      desc: li.querySelector(".todo-text span").innerText,
+      date: li.querySelector(".todo-text small").innerText.replace("Due: ",""),
+      completed: li.classList.contains("completed")
+    };
+  });
+  localStorage.setItem("todoTasks", JSON.stringify(tasks));
 }
 
-function updateStats(){
-  const total=document.querySelectorAll(".todo-item").length;
-  const done=document.querySelectorAll(".todo-item.completed").length;
-  pendingCount.textContent=`${total-done} pendientes`;
+function loadTasks() {
+  const data = JSON.parse(localStorage.getItem("todoTasks")) || [];
+  if (data.length === 0) {
+    addTask({ id:1, imageSrc:"https://iili.io/dL9hYsj.png", name:"Sport" }, 
+            "Soccer practice", new Date().toISOString().split("T")[0], false);
+  } else {
+    data.forEach(t => addTask(t.category, t.desc, t.date, t.completed));
+  }
 }
 
-function resetForm(){
-  document.getElementById("task-desc").value="";
-  document.getElementById("task-date").value="";
-  document.querySelectorAll(".category").forEach(c=>c.classList.remove("selected"));
-  selectedCategory=null;
+// Limpiar completadas
+function clearCompleted() {
+  document.querySelectorAll(".todo-item.completed").forEach(li => li.remove());
+  saveTasks();
+  updateStats();
 }
-'@ | Set-Content -Encoding UTF8 app.js
+
+// Actualizar contador
+function updateStats() {
+  const total = todoList.children.length;
+  const done = todoList.querySelectorAll(".completed").length;
+  pendingCount.innerText = `${total - done} pendientes`;
+}
+
+// Reset formulario
+function resetForm() {
+  document.getElementById("task-desc").value = "";
+  document.getElementById("task-date").value = "";
+  document.querySelectorAll(".category").forEach(c => c.classList.remove("selected"));
+  selectedCategory = null;
+}
